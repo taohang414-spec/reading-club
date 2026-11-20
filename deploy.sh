@@ -18,9 +18,21 @@ apt-get update -qq
 apt-get install -y -qq curl git openssl ufw >/dev/null
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "==> Installing Node.js 20"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >/dev/null 2>&1
-  apt-get install -y -qq nodejs >/dev/null
+  echo "==> Installing Node.js 20 (portable binary, works on any Ubuntu version)"
+  NODE_VER="v20.19.0"
+  case "$(uname -m)" in
+    x86_64) NODE_ARCH="x64" ;;
+    aarch64|arm64) NODE_ARCH="arm64" ;;
+    *) echo "Unsupported CPU architecture: $(uname -m)" >&2; exit 1 ;;
+  esac
+  NODE_TAR="node-${NODE_VER}-linux-${NODE_ARCH}.tar.xz"
+  curl -fsSL "https://registry.npmmirror.com/-/binary/node/${NODE_VER}/${NODE_TAR}" -o "/tmp/${NODE_TAR}"
+  mkdir -p /usr/local/lib/nodejs
+  tar -xJf "/tmp/${NODE_TAR}" -C /usr/local/lib/nodejs --strip-components=1
+  rm -f "/tmp/${NODE_TAR}"
+  ln -sf /usr/local/lib/nodejs/bin/node /usr/local/bin/node
+  ln -sf /usr/local/lib/nodejs/bin/npm /usr/local/bin/npm
+  ln -sf /usr/local/lib/nodejs/bin/npx /usr/local/bin/npx
 fi
 echo "Node: $(node -v)  npm: $(npm -v)"
 
