@@ -1,0 +1,9 @@
+node_modules/
+data/db.json
+data/audio/*
+data/cert.pem
+data/key.pem
+data/*.tmp
+test-audio/
+.DS_Store
+*.log
